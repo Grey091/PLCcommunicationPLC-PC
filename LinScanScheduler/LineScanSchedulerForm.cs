@@ -181,6 +181,7 @@ namespace LinScanScheduler
         }
         #endregion
 
+        #region PLC
         public LineScanSchedulerForm()
         {
             InitializeComponent();
@@ -502,13 +503,14 @@ namespace LinScanScheduler
             }
          //   SendPLCCommand();
         }
-
+        #endregion
         private void PLCTimeoutTimer_Tick(object sender, EventArgs e)
         {
             _WaitPLCResponseHandle.Set();
        //     SendPLCCommand();
         }
 
+        #region IMAGE
         public void ImageGrabOn()
         {
             CogFrameGrabberGigEs fgs = new CogFrameGrabberGigEs();
@@ -666,7 +668,7 @@ namespace LinScanScheduler
             }
             btnStatusM3.BackColor = Color.LightPink;
         }
-
+        #endregion
         private void LineScanSchedulerForm_Load(object sender, EventArgs e)
         {
             FileInfo fileinfo = new FileInfo(Application.ExecutablePath);
@@ -704,6 +706,7 @@ namespace LinScanScheduler
 
         }
 
+        #region EventClick
         private void btnSave_Click(object sender, EventArgs e)
         {
             m_strPLCPort = txtPLCPort.Text;
@@ -843,7 +846,7 @@ namespace LinScanScheduler
             SendPLCCommand();*/
             SendBacode(1, false);
         }
-
+        #endregion
         public void LightOn(int nLightControl)
         {
             LightComm.PortName = m_strLightPort;
@@ -1158,6 +1161,7 @@ namespace LinScanScheduler
             m_nScanIndex = m_nScanIndex % 3;
  
         }
+
         public void Scheduling()
         {
             int nLines = 0;
@@ -1430,9 +1434,8 @@ namespace LinScanScheduler
             {
                 m_nSendMaxIndex = 3;
                 nIndex = m_nSendMaxIndex - m_nSendIndex;
-                if (nIndex == 2)
-                    nIndex = 3;
-
+                //if (nIndex == 2)
+                //    nIndex = 3;
             }
             else if (m_NiDaq.m_nReadPort[2] != 0 && m_NiDaq.m_nReadPort[1] == 0)
             {
@@ -1447,7 +1450,7 @@ namespace LinScanScheduler
                 nIndex = 3;
             }
             //cho nay !!!
-            if (nIndex >= 2)
+            if (nIndex == 3)
             {
                 nIndex = 3;
                 if (SendBacode(3, false))  //3호기로 전송
@@ -1477,6 +1480,66 @@ namespace LinScanScheduler
                     m_NiDaq.WriteDOut(1, 0, 0, 7, nLines);
                     DisplayResult("#2 Send Barcode", Color.LightGreen);
 
+                }
+                else
+                {
+                    nLines = 0;
+                    arrLines[3] = 0;
+
+                    for (int nLine = 0; nLine < 8; nLine++)
+                    {
+                        nLines = nLines << 1;
+
+                        nLines = nLines + arrLines[nLine];
+                    }
+                    m_NiDaq.WriteDOut(1, 0, 0, 7, nLines);
+
+                    System.Threading.Thread.Sleep(1500);
+
+                    nLines = 0;
+                    arrLines[3] = 1;
+
+                    for (int nLine = 0; nLine < 8; nLine++)
+                    {
+                        nLines = nLines << 1;
+
+                        nLines = nLines + arrLines[nLine];
+                    }
+                    m_NiDaq.WriteDOut(1, 0, 0, 7, nLines);
+
+                }
+
+            }
+            // code gui cho may 2
+            else if (nIndex == 2)                 
+            {
+                nIndex = 2;
+                if (SendBacode(2, false))  
+                {
+                    nLines = 0;
+                    arrLines[2] = 0;
+                    arrLines[1] = 0;
+                    for (int nLine = 0; nLine < 8; nLine++)
+                    {
+                        nLines = nLines << 1;
+
+                        nLines = nLines + arrLines[nLine];
+                    }
+                    m_NiDaq.WriteDOut(1, 0, 0, 7, nLines);
+
+                    System.Threading.Thread.Sleep(1500);
+
+                    nLines = 0;
+                    arrLines[2] = 1;
+                    arrLines[1] = 1;
+                    for (int nLine = 0; nLine < 8; nLine++)
+                    {
+                        nLines = nLines << 1;
+
+                        nLines = nLines + arrLines[nLine];
+                    }
+                    m_NiDaq.WriteDOut(1, 0, 0, 7, nLines);
+                    DisplayResult("#2 Send Barcode", Color.LightGreen);
                 }
                 else
                 {
@@ -1600,8 +1663,8 @@ namespace LinScanScheduler
                 else if (m_NiDaq.m_nReadPort[2] == 1)
                 {
                     nIndex = m_nSendMaxIndex - m_nSendIndex;
-                    if (nIndex == 2)
-                        nIndex = 3;
+                    //if (nIndex == 2)
+                    //    nIndex = 3;
                 }
                 else if (m_NiDaq.m_nReadPort[3] == 1)
                 {
@@ -1627,7 +1690,7 @@ namespace LinScanScheduler
             {
 
             }
-
+            
             /*
             if (m_NiDaq.m_nReadPort[3] == 0 && m_NiDaq.m_nReadPort[2] == 0 && m_NiDaq.m_nReadPort[1] == 0)
             {
@@ -2106,6 +2169,7 @@ namespace LinScanScheduler
             
         }
 
+        #region nevazno
         private void btnOption_Click(object sender, EventArgs e)
         {
             OptionForm OForm = new OptionForm();
@@ -2397,6 +2461,7 @@ namespace LinScanScheduler
             }
             m_NiDaq.WriteDOut(1, 0, 0, 7, nLines);
         }
+        #endregion
     }
 
     public class ModelData
